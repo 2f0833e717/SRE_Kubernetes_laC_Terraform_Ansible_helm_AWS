@@ -1,0 +1,547 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>operations manual - SRE_Kubernetes_laC_Terraform_Ansible_helm_AWS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">SRE_Kubernetes_laC_Terraform_Ansible_helm_AWS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="YOUR_REPOSITORY_URL" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="YOUR_REPOSITORY_URL/edit/main/./operations/operations-manual.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<p><strong>Table of Contents</strong>  <em>generated with <a href="https://github.com/thlorenz/doctoc">DocToc</a></em></p>
+<ul>
+<li><a href="#%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E5%9F%BA%E7%9B%A4-%E9%81%8B%E7%94%A8%E6%89%8B%E9%A0%86%E6%9B%B8">マイクロサービス基盤 運用手順書</a>
+<ul>
+<li><a href="#1-%E6%A6%82%E8%A6%81">1. 概要</a></li>
+<li><a href="#2-%E7%92%B0%E5%A2%83%E6%83%85%E5%A0%B1">2. 環境情報</a>
+<ul>
+<li><a href="#21-%E7%92%B0%E5%A2%83%E4%B8%80%E8%A6%A7">2.1 環境一覧</a></li>
+<li><a href="#22-%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E6%83%85%E5%A0%B1">2.2 アクセス情報</a></li>
+</ul>
+</li>
+<li><a href="#3-%E6%97%A5%E5%B8%B8%E9%81%8B%E7%94%A8%E6%89%8B%E9%A0%86">3. 日常運用手順</a>
+<ul>
+<li><a href="#31-%E7%9B%A3%E8%A6%96%E7%A2%BA%E8%AA%8D">3.1 監視確認</a></li>
+<li><a href="#32-%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97">3.2 バックアップ</a></li>
+<li><a href="#33-%E3%83%91%E3%83%83%E3%83%81%E9%81%A9%E7%94%A8">3.3 パッチ適用</a></li>
+</ul>
+</li>
+<li><a href="#4-%E9%9A%9C%E5%AE%B3%E5%AF%BE%E5%BF%9C%E6%89%8B%E9%A0%86">4. 障害対応手順</a>
+<ul>
+<li><a href="#41-pod%E9%9A%9C%E5%AE%B3">4.1 Pod障害</a></li>
+<li><a href="#42-%E3%83%8E%E3%83%BC%E3%83%89%E9%9A%9C%E5%AE%B3">4.2 ノード障害</a></li>
+<li><a href="#43-%E7%9B%A3%E8%A6%96%E3%82%A2%E3%83%A9%E3%83%BC%E3%83%88%E5%AF%BE%E5%BF%9C">4.3 監視アラート対応</a></li>
+</ul>
+</li>
+<li><a href="#5-%E3%83%A1%E3%83%B3%E3%83%86%E3%83%8A%E3%83%B3%E3%82%B9%E6%89%8B%E9%A0%86">5. メンテナンス手順</a>
+<ul>
+<li><a href="#51-%E8%A8%88%E7%94%BB%E3%83%A1%E3%83%B3%E3%83%86%E3%83%8A%E3%83%B3%E3%82%B9">5.1 計画メンテナンス</a></li>
+<li><a href="#52-%E7%B7%8A%E6%80%A5%E3%83%A1%E3%83%B3%E3%83%86%E3%83%8A%E3%83%B3%E3%82%B9">5.2 緊急メンテナンス</a></li>
+</ul>
+</li>
+<li><a href="#6-%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%E9%81%8B%E7%94%A8">6. セキュリティ運用</a>
+<ul>
+<li><a href="#61-%E8%84%86%E5%BC%B1%E6%80%A7%E5%AF%BE%E5%BF%9C">6.1 脆弱性対応</a></li>
+<li><a href="#62-%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%E7%9B%A3%E6%9F%BB">6.2 セキュリティ監査</a></li>
+</ul>
+</li>
+<li><a href="#7-%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B%E5%AF%BE%E5%BF%9C">7. 問い合わせ対応</a>
+<ul>
+<li><a href="#71-%E4%B8%80%E8%88%AC%E7%9A%84%E3%81%AA%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">7.1 一般的な問い合わせ</a></li>
+<li><a href="#72-%E9%9A%9C%E5%AE%B3%E5%A0%B1%E5%91%8A">7.2 障害報告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<h1 id="マイクロサービス基盤-運用手順書"><a class="header" href="#マイクロサービス基盤-運用手順書">マイクロサービス基盤 運用手順書</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<p>このドキュメントは、マイクロサービス基盤の運用管理に関する手順書です。</p>
+<h2 id="2-環境情報"><a class="header" href="#2-環境情報">2. 環境情報</a></h2>
+<h3 id="21-環境一覧"><a class="header" href="#21-環境一覧">2.1 環境一覧</a></h3>
+<ul>
+<li>開発環境（dev）</li>
+<li>ステージング環境（stg）</li>
+<li>本番環境（prod）</li>
+</ul>
+<h3 id="22-アクセス情報"><a class="header" href="#22-アクセス情報">2.2 アクセス情報</a></h3>
+<ul>
+<li>AWS Console: https://console.aws.amazon.com/</li>
+<li>Kibana: https://kibana.microservices.example.com</li>
+<li>Grafana: https://grafana.microservices.example.com</li>
+</ul>
+<h2 id="3-日常運用手順"><a class="header" href="#3-日常運用手順">3. 日常運用手順</a></h2>
+<h3 id="31-監視確認"><a class="header" href="#31-監視確認">3.1 監視確認</a></h3>
+<ol>
+<li>
+<p>Grafanaダッシュボードの確認</p>
+<ul>
+<li>クラスタリソース使用状況</li>
+<li>アプリケーションメトリクス</li>
+<li>エラーレート</li>
+</ul>
+</li>
+<li>
+<p>Prometheusアラートの確認</p>
+<pre><code class="language-bash">kubectl -n monitoring get prometheusrules
+kubectl -n monitoring get alertmanager
+</code></pre>
+</li>
+<li>
+<p>ログの確認</p>
+<ul>
+<li>Kibanaダッシュボードでエラーログの確認</li>
+<li>異常パターンの検知</li>
+</ul>
+</li>
+</ol>
+<h3 id="32-バックアップ"><a class="header" href="#32-バックアップ">3.2 バックアップ</a></h3>
+<ol>
+<li>
+<p>EKSクラスタのバックアップ</p>
+<pre><code class="language-bash">velero backup create eks-backup-$(date +%Y%m%d)
+</code></pre>
+</li>
+<li>
+<p>Elasticsearchのスナップショット</p>
+<pre><code class="language-bash">curl -X PUT "elasticsearch-master:9200/_snapshot/backup/snapshot-$(date +%Y%m%d)"
+</code></pre>
+</li>
+</ol>
+<h3 id="33-パッチ適用"><a class="header" href="#33-パッチ適用">3.3 パッチ適用</a></h3>
+<ol>
+<li>
+<p>セキュリティパッチの確認</p>
+<pre><code class="language-bash">aws eks describe-addon-versions
+</code></pre>
+</li>
+<li>
+<p>Kubernetesバージョンアップ</p>
+<pre><code class="language-bash">cd terraform/environments/&lt;env&gt;
+terraform plan -var kubernetes_version=&lt;new_version&gt;
+terraform apply
+</code></pre>
+</li>
+</ol>
+<h2 id="4-障害対応手順"><a class="header" href="#4-障害対応手順">4. 障害対応手順</a></h2>
+<h3 id="41-pod障害"><a class="header" href="#41-pod障害">4.1 Pod障害</a></h3>
+<ol>
+<li>
+<p>状態確認</p>
+<pre><code class="language-bash">kubectl get pods -A | grep -v Running
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt;
+</code></pre>
+</li>
+<li>
+<p>再起動</p>
+<pre><code class="language-bash">kubectl delete pod &lt;pod-name&gt; -n &lt;namespace&gt;
+</code></pre>
+</li>
+</ol>
+<h3 id="42-ノード障害"><a class="header" href="#42-ノード障害">4.2 ノード障害</a></h3>
+<ol>
+<li>
+<p>状態確認</p>
+<pre><code class="language-bash">kubectl get nodes
+kubectl describe node &lt;node-name&gt;
+</code></pre>
+</li>
+<li>
+<p>ノードの隔離</p>
+<pre><code class="language-bash">kubectl cordon &lt;node-name&gt;
+kubectl drain &lt;node-name&gt; --ignore-daemonsets
+</code></pre>
+</li>
+</ol>
+<h3 id="43-監視アラート対応"><a class="header" href="#43-監視アラート対応">4.3 監視アラート対応</a></h3>
+<ol>
+<li>
+<p>CPU高使用率</p>
+<ul>
+<li>プロセス確認</li>
+<li>リソース制限の見直し</li>
+<li>スケールアウトの検討</li>
+</ul>
+</li>
+<li>
+<p>メモリ高使用率</p>
+<ul>
+<li>メモリリーク調査</li>
+<li>ヒープダンプ取得</li>
+<li>リソース制限の見直し</li>
+</ul>
+</li>
+<li>
+<p>ディスク高使用率</p>
+<ul>
+<li>不要ファイルの削除</li>
+<li>ログローテーションの確認</li>
+<li>ボリューム拡張の検討</li>
+</ul>
+</li>
+</ol>
+<h2 id="5-メンテナンス手順"><a class="header" href="#5-メンテナンス手順">5. メンテナンス手順</a></h2>
+<h3 id="51-計画メンテナンス"><a class="header" href="#51-計画メンテナンス">5.1 計画メンテナンス</a></h3>
+<ol>
+<li>
+<p>事前準備</p>
+<ul>
+<li>変更計画書の作成</li>
+<li>バックアップの取得</li>
+<li>影響範囲の特定</li>
+</ul>
+</li>
+<li>
+<p>実施手順</p>
+<ul>
+<li>変更内容の確認</li>
+<li>変更の実施</li>
+<li>動作確認</li>
+</ul>
+</li>
+<li>
+<p>事後確認</p>
+<ul>
+<li>監視の確認</li>
+<li>ログの確認</li>
+<li>利用者への通知</li>
+</ul>
+</li>
+</ol>
+<h3 id="52-緊急メンテナンス"><a class="header" href="#52-緊急メンテナンス">5.2 緊急メンテナンス</a></h3>
+<ol>
+<li>
+<p>初動対応</p>
+<ul>
+<li>状況の把握</li>
+<li>影響範囲の特定</li>
+<li>関係者への通知</li>
+</ul>
+</li>
+<li>
+<p>対応手順</p>
+<ul>
+<li>原因の特定</li>
+<li>対策の実施</li>
+<li>動作確認</li>
+</ul>
+</li>
+<li>
+<p>事後対応</p>
+<ul>
+<li>報告書の作成</li>
+<li>再発防止策の検討</li>
+<li>監視項目の見直し</li>
+</ul>
+</li>
+</ol>
+<h2 id="6-セキュリティ運用"><a class="header" href="#6-セキュリティ運用">6. セキュリティ運用</a></h2>
+<h3 id="61-脆弱性対応"><a class="header" href="#61-脆弱性対応">6.1 脆弱性対応</a></h3>
+<ol>
+<li>
+<p>脆弱性情報の収集</p>
+<ul>
+<li>AWS Security Bulletins</li>
+<li>Kubernetes Security Announcements</li>
+<li>OSベンダーのセキュリティ情報</li>
+</ul>
+</li>
+<li>
+<p>影響度の評価</p>
+<ul>
+<li>CVSSスコアの確認</li>
+<li>影響範囲の特定</li>
+<li>対応優先度の決定</li>
+</ul>
+</li>
+<li>
+<p>対策の実施</p>
+<ul>
+<li>パッチの適用</li>
+<li>設定変更</li>
+<li>代替策の実施</li>
+</ul>
+</li>
+</ol>
+<h3 id="62-セキュリティ監査"><a class="header" href="#62-セキュリティ監査">6.2 セキュリティ監査</a></h3>
+<ol>
+<li>
+<p>定期監査</p>
+<ul>
+<li>アクセスログの確認</li>
+<li>権限設定の確認</li>
+<li>セキュリティグループの確認</li>
+</ul>
+</li>
+<li>
+<p>コンプライアンス対応</p>
+<ul>
+<li>監査ログの保管</li>
+<li>証跡の管理</li>
+<li>レポートの作成</li>
+</ul>
+</li>
+</ol>
+<h2 id="7-問い合わせ対応"><a class="header" href="#7-問い合わせ対応">7. 問い合わせ対応</a></h2>
+<h3 id="71-一般的な問い合わせ"><a class="header" href="#71-一般的な問い合わせ">7.1 一般的な問い合わせ</a></h3>
+<ol>
+<li>
+<p>情報収集</p>
+<ul>
+<li>問い合わせ内容の確認</li>
+<li>環境情報の確認</li>
+<li>再現手順の確認</li>
+</ul>
+</li>
+<li>
+<p>調査</p>
+<ul>
+<li>ログの確認</li>
+<li>設定の確認</li>
+<li>類似事例の確認</li>
+</ul>
+</li>
+<li>
+<p>回答</p>
+<ul>
+<li>原因の説明</li>
+<li>対処方法の説明</li>
+<li>再発防止策の提案</li>
+</ul>
+</li>
+</ol>
+<h3 id="72-障害報告"><a class="header" href="#72-障害報告">7.2 障害報告</a></h3>
+<ol>
+<li>
+<p>一次対応</p>
+<ul>
+<li>状況の確認</li>
+<li>暫定対処</li>
+<li>報告の準備</li>
+</ul>
+</li>
+<li>
+<p>原因調査</p>
+<ul>
+<li>ログ解析</li>
+<li>環境調査</li>
+<li>再現確認</li>
+</ul>
+</li>
+<li>
+<p>恒久対応</p>
+<ul>
+<li>対策の実施</li>
+<li>検証</li>
+<li>報告書作成</li>
+</ul>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../operations/disaster-recovery.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../operations/troubleshooting-guide.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../operations/disaster-recovery.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../operations/troubleshooting-guide.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid.min.js"></script>
+        <script src="../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

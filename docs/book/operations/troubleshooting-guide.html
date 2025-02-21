@@ -1,0 +1,543 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>troubleshooting guide - SRE_Kubernetes_laC_Terraform_Ansible_helm_AWS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">SRE_Kubernetes_laC_Terraform_Ansible_helm_AWS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="YOUR_REPOSITORY_URL" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="YOUR_REPOSITORY_URL/edit/main/./operations/troubleshooting-guide.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<p><strong>Table of Contents</strong>  <em>generated with <a href="https://github.com/thlorenz/doctoc">DocToc</a></em></p>
+<ul>
+<li><a href="#%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E5%9F%BA%E7%9B%A4-%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E3%82%AC%E3%82%A4%E3%83%89">マイクロサービス基盤 トラブルシューティングガイド</a>
+<ul>
+<li><a href="#1-%E4%B8%80%E8%88%AC%E7%9A%84%E3%81%AA%E5%95%8F%E9%A1%8C%E3%81%A8%E5%AF%BE%E5%87%A6%E6%96%B9%E6%B3%95">1. 一般的な問題と対処方法</a>
+<ul>
+<li><a href="#11-kubernetes%E9%96%A2%E9%80%A3">1.1 Kubernetes関連</a>
+<ul>
+<li><a href="#pod%E8%B5%B7%E5%8B%95%E5%A4%B1%E6%95%97">Pod起動失敗</a></li>
+</ul>
+</li>
+<li><a href="#12-eks%E9%96%A2%E9%80%A3">1.2 EKS関連</a>
+<ul>
+<li><a href="#%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%BF%E6%8E%A5%E7%B6%9A%E5%95%8F%E9%A1%8C">クラスタ接続問題</a></li>
+</ul>
+</li>
+<li><a href="#13-%E7%9B%A3%E8%A6%96%E9%96%A2%E9%80%A3">1.3 監視関連</a>
+<ul>
+<li><a href="#prometheusgrafana%E5%95%8F%E9%A1%8C">Prometheus/Grafana問題</a></li>
+</ul>
+</li>
+<li><a href="#14-%E3%83%AD%E3%82%B0%E5%8F%8E%E9%9B%86%E9%96%A2%E9%80%A3">1.4 ログ収集関連</a>
+<ul>
+<li><a href="#elasticsearchkibana%E5%95%8F%E9%A1%8C">Elasticsearch/Kibana問題</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#2-%E9%AB%98%E5%BA%A6%E3%81%AA%E5%95%8F%E9%A1%8C%E8%A7%A3%E6%B1%BA">2. 高度な問題解決</a>
+<ul>
+<li><a href="#21-%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9%E5%95%8F%E9%A1%8C">2.1 パフォーマンス問題</a>
+<ul>
+<li><a href="#%E3%83%8E%E3%83%BC%E3%83%89%E3%83%AC%E3%83%99%E3%83%AB">ノードレベル</a></li>
+<li><a href="#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%AC%E3%83%99%E3%83%AB">アプリケーションレベル</a></li>
+</ul>
+</li>
+<li><a href="#22-%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E5%95%8F%E9%A1%8C">2.2 ネットワーク問題</a>
+<ul>
+<li><a href="#%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E6%8E%A5%E7%B6%9A">サービス接続</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#3-%E4%BA%88%E9%98%B2%E7%9A%84%E3%83%A1%E3%83%B3%E3%83%86%E3%83%8A%E3%83%B3%E3%82%B9">3. 予防的メンテナンス</a>
+<ul>
+<li><a href="#31-%E5%AE%9A%E6%9C%9F%E3%83%81%E3%82%A7%E3%83%83%E3%82%AF%E9%A0%85%E7%9B%AE">3.1 定期チェック項目</a></li>
+<li><a href="#32-%E3%82%AD%E3%83%A3%E3%83%91%E3%82%B7%E3%83%86%E3%82%A3%E3%83%97%E3%83%A9%E3%83%B3%E3%83%8B%E3%83%B3%E3%82%B0">3.2 キャパシティプランニング</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<h1 id="マイクロサービス基盤-トラブルシューティングガイド"><a class="header" href="#マイクロサービス基盤-トラブルシューティングガイド">マイクロサービス基盤 トラブルシューティングガイド</a></h1>
+<h2 id="1-一般的な問題と対処方法"><a class="header" href="#1-一般的な問題と対処方法">1. 一般的な問題と対処方法</a></h2>
+<h3 id="11-kubernetes関連"><a class="header" href="#11-kubernetes関連">1.1 Kubernetes関連</a></h3>
+<h4 id="pod起動失敗"><a class="header" href="#pod起動失敗">Pod起動失敗</a></h4>
+<p><strong>症状</strong></p>
+<ul>
+<li>Podがペンディング状態</li>
+<li>Podがクラッシュループ</li>
+<li>ImagePullBackOff エラー</li>
+</ul>
+<p><strong>確認手順</strong></p>
+<pre><code class="language-bash"># Podの状態確認
+kubectl get pods -n &lt;namespace&gt;
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt;
+
+# ノードの状態確認
+kubectl get nodes
+kubectl describe node &lt;node-name&gt;
+</code></pre>
+<p><strong>一般的な原因と対処</strong></p>
+<ol>
+<li>
+<p>リソース不足</p>
+<pre><code class="language-bash"># ノードのリソース使用状況確認
+kubectl top nodes
+kubectl top pods -n &lt;namespace&gt;
+
+# 必要に応じてリソース制限の調整
+kubectl edit deployment &lt;deployment-name&gt; -n &lt;namespace&gt;
+</code></pre>
+</li>
+<li>
+<p>イメージプル失敗</p>
+<pre><code class="language-bash"># イメージ名とタグの確認
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt; | grep Image
+
+# レジストリの認証確認
+kubectl get secret -n &lt;namespace&gt;
+</code></pre>
+</li>
+<li>
+<p>設定エラー</p>
+<pre><code class="language-bash"># ConfigMapとSecretの確認
+kubectl get configmap -n &lt;namespace&gt;
+kubectl get secret -n &lt;namespace&gt;
+</code></pre>
+</li>
+</ol>
+<h3 id="12-eks関連"><a class="header" href="#12-eks関連">1.2 EKS関連</a></h3>
+<h4 id="クラスタ接続問題"><a class="header" href="#クラスタ接続問題">クラスタ接続問題</a></h4>
+<p><strong>症状</strong></p>
+<ul>
+<li>kubectlコマンドがタイムアウト</li>
+<li>認証エラー</li>
+</ul>
+<p><strong>確認手順</strong></p>
+<pre><code class="language-bash"># クラスタ状態確認
+aws eks describe-cluster --name &lt;cluster-name&gt; --region &lt;region&gt;
+
+# IAM認証確認
+aws sts get-caller-identity
+
+# kubeconfig更新
+aws eks update-kubeconfig --name &lt;cluster-name&gt; --region &lt;region&gt;
+</code></pre>
+<p><strong>一般的な原因と対処</strong></p>
+<ol>
+<li>
+<p>IAMロール/ポリシー問題</p>
+<pre><code class="language-bash"># IAMロールの確認
+aws iam get-role --role-name &lt;role-name&gt;
+
+# ポリシーの確認
+aws iam list-attached-role-policies --role-name &lt;role-name&gt;
+</code></pre>
+</li>
+<li>
+<p>セキュリティグループ問題</p>
+<pre><code class="language-bash"># セキュリティグループ確認
+aws ec2 describe-security-groups --group-ids &lt;security-group-id&gt;
+</code></pre>
+</li>
+</ol>
+<h3 id="13-監視関連"><a class="header" href="#13-監視関連">1.3 監視関連</a></h3>
+<h4 id="prometheusgrafana問題"><a class="header" href="#prometheusgrafana問題">Prometheus/Grafana問題</a></h4>
+<p><strong>症状</strong></p>
+<ul>
+<li>メトリクス収集停止</li>
+<li>ダッシュボード表示エラー</li>
+<li>アラート未発報</li>
+</ul>
+<p><strong>確認手順</strong></p>
+<pre><code class="language-bash"># Prometheusの状態確認
+kubectl get pods -n monitoring | grep prometheus
+kubectl logs -n monitoring &lt;prometheus-pod&gt;
+
+# Grafanaの状態確認
+kubectl get pods -n monitoring | grep grafana
+kubectl logs -n monitoring &lt;grafana-pod&gt;
+</code></pre>
+<p><strong>一般的な原因と対処</strong></p>
+<ol>
+<li>
+<p>ストレージ問題</p>
+<pre><code class="language-bash"># PVC確認
+kubectl get pvc -n monitoring
+
+# ストレージ使用量確認
+kubectl exec -it &lt;prometheus-pod&gt; -n monitoring -- df -h
+</code></pre>
+</li>
+<li>
+<p>設定問題</p>
+<pre><code class="language-bash"># ConfigMap確認
+kubectl get configmap -n monitoring
+kubectl describe configmap &lt;configmap-name&gt; -n monitoring
+</code></pre>
+</li>
+</ol>
+<h3 id="14-ログ収集関連"><a class="header" href="#14-ログ収集関連">1.4 ログ収集関連</a></h3>
+<h4 id="elasticsearchkibana問題"><a class="header" href="#elasticsearchkibana問題">Elasticsearch/Kibana問題</a></h4>
+<p><strong>症状</strong></p>
+<ul>
+<li>ログ収集停止</li>
+<li>クラスタ状態異常</li>
+<li>検索機能不具合</li>
+</ul>
+<p><strong>確認手順</strong></p>
+<pre><code class="language-bash"># Elasticsearchの状態確認
+kubectl get pods -n logging | grep elasticsearch
+curl -X GET "elasticsearch-master:9200/_cluster/health"
+
+# Kibanaの状態確認
+kubectl get pods -n logging | grep kibana
+kubectl logs -n logging &lt;kibana-pod&gt;
+</code></pre>
+<p><strong>一般的な原因と対処</strong></p>
+<ol>
+<li>
+<p>クラスタ健全性問題</p>
+<pre><code class="language-bash"># シャード状態確認
+curl -X GET "elasticsearch-master:9200/_cat/shards"
+
+# ノード状態確認
+curl -X GET "elasticsearch-master:9200/_cat/nodes"
+</code></pre>
+</li>
+<li>
+<p>リソース問題</p>
+<pre><code class="language-bash"># JVM状態確認
+curl -X GET "elasticsearch-master:9200/_nodes/stats/jvm"
+</code></pre>
+</li>
+</ol>
+<h2 id="2-高度な問題解決"><a class="header" href="#2-高度な問題解決">2. 高度な問題解決</a></h2>
+<h3 id="21-パフォーマンス問題"><a class="header" href="#21-パフォーマンス問題">2.1 パフォーマンス問題</a></h3>
+<h4 id="ノードレベル"><a class="header" href="#ノードレベル">ノードレベル</a></h4>
+<p><strong>症状</strong></p>
+<ul>
+<li>高CPU使用率</li>
+<li>高メモリ使用率</li>
+<li>高ディスクI/O</li>
+</ul>
+<p><strong>診断ツール</strong></p>
+<pre><code class="language-bash"># システムメトリクス確認
+kubectl top nodes
+kubectl describe node &lt;node-name&gt;
+
+# コンテナメトリクス確認
+kubectl top pods -n &lt;namespace&gt;
+</code></pre>
+<p><strong>対処方法</strong></p>
+<ol>
+<li>リソース最適化
+<pre><code class="language-bash"># リソース制限の調整
+kubectl edit deployment &lt;deployment-name&gt; -n &lt;namespace&gt;
+
+# HPA設定
+kubectl autoscale deployment &lt;deployment-name&gt; -n &lt;namespace&gt; --min=2 --max=5 --cpu-percent=80
+</code></pre>
+</li>
+</ol>
+<h4 id="アプリケーションレベル"><a class="header" href="#アプリケーションレベル">アプリケーションレベル</a></h4>
+<p><strong>症状</strong></p>
+<ul>
+<li>レスポンス遅延</li>
+<li>タイムアウト</li>
+<li>メモリリーク</li>
+</ul>
+<p><strong>診断ツール</strong></p>
+<pre><code class="language-bash"># アプリケーションログ確認
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt;
+
+# コンテナメトリクス詳細
+kubectl exec -it &lt;pod-name&gt; -n &lt;namespace&gt; -- top
+</code></pre>
+<h3 id="22-ネットワーク問題"><a class="header" href="#22-ネットワーク問題">2.2 ネットワーク問題</a></h3>
+<h4 id="サービス接続"><a class="header" href="#サービス接続">サービス接続</a></h4>
+<p><strong>症状</strong></p>
+<ul>
+<li>サービス間通信エラー</li>
+<li>DNS解決失敗</li>
+<li>ロードバランサー問題</li>
+</ul>
+<p><strong>診断ツール</strong></p>
+<pre><code class="language-bash"># サービス確認
+kubectl get svc -n &lt;namespace&gt;
+kubectl describe svc &lt;service-name&gt; -n &lt;namespace&gt;
+
+# エンドポイント確認
+kubectl get endpoints &lt;service-name&gt; -n &lt;namespace&gt;
+</code></pre>
+<p><strong>対処方法</strong></p>
+<ol>
+<li>
+<p>DNS問題</p>
+<pre><code class="language-bash"># CoreDNS確認
+kubectl get pods -n kube-system | grep coredns
+kubectl logs -n kube-system &lt;coredns-pod&gt;
+</code></pre>
+</li>
+<li>
+<p>ネットワークポリシー</p>
+<pre><code class="language-bash"># ポリシー確認
+kubectl get networkpolicy -n &lt;namespace&gt;
+kubectl describe networkpolicy &lt;policy-name&gt; -n &lt;namespace&gt;
+</code></pre>
+</li>
+</ol>
+<h2 id="3-予防的メンテナンス"><a class="header" href="#3-予防的メンテナンス">3. 予防的メンテナンス</a></h2>
+<h3 id="31-定期チェック項目"><a class="header" href="#31-定期チェック項目">3.1 定期チェック項目</a></h3>
+<ol>
+<li>
+<p>リソース使用状況</p>
+<pre><code class="language-bash"># ノードリソース
+kubectl top nodes
+
+# Podリソース
+kubectl top pods -A
+</code></pre>
+</li>
+<li>
+<p>バックアップ状態</p>
+<pre><code class="language-bash"># Veleroバックアップ確認
+velero get backup
+
+# Elasticsearchスナップショット確認
+curl -X GET "elasticsearch-master:9200/_snapshot/_all"
+</code></pre>
+</li>
+<li>
+<p>セキュリティ更新</p>
+<pre><code class="language-bash"># EKSバージョン確認
+aws eks describe-cluster --name &lt;cluster-name&gt; --query "cluster.version"
+
+# ノードAMI確認
+aws eks describe-nodegroup --cluster-name &lt;cluster-name&gt; --nodegroup-name &lt;nodegroup-name&gt;
+</code></pre>
+</li>
+</ol>
+<h3 id="32-キャパシティプランニング"><a class="header" href="#32-キャパシティプランニング">3.2 キャパシティプランニング</a></h3>
+<ol>
+<li>
+<p>リソース使用傾向分析</p>
+<ul>
+<li>Prometheusメトリクス確認</li>
+<li>成長予測</li>
+<li>スケーリング計画</li>
+</ul>
+</li>
+<li>
+<p>コスト最適化</p>
+<ul>
+<li>未使用リソースの特定</li>
+<li>リソース制限の最適化</li>
+<li>スポットインスタンスの活用</li>
+</ul>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../operations/operations-manual.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../operations/operations-manual.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid.min.js"></script>
+        <script src="../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

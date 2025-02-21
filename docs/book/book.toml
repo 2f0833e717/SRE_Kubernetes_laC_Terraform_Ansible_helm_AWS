@@ -1,0 +1,19 @@
+[book]
+title = "SRE_Kubernetes_laC_Terraform_Ansible_helm_AWS"
+authors = ["2f0833e717"]
+language = "ja"
+description = ""
+src = "."
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "YOUR_REPOSITORY_URL"
+edit-url-template = "YOUR_REPOSITORY_URL/edit/main/{path}"
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
+
+[build]
+build-dir = "./book"
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
