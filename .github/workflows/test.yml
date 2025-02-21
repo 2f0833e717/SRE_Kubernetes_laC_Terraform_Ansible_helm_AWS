@@ -1,0 +1,118 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  unit-test:
+    name: ユニットテスト
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: Go環境のセットアップ
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.19'
+
+      - name: Goのテスト実行
+        run: |
+          go test -v ./... -coverprofile=coverage.out
+          go tool cover -html=coverage.out -o coverage.html
+
+      - name: テストカバレッジのアップロード
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-coverage
+          path: coverage.html
+
+  integration-test:
+    name: 統合テスト
+    runs-on: ubuntu-latest
+    needs: unit-test
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: KindのセットアップKindのセットアップ
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: "v0.11.1"
+          config: kubernetes/test/kind-config.yaml
+
+      - name: Kubernetesクラスタ情報の表示
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+          kubectl get pods -A
+
+      - name: Helmのセットアップ
+        uses: azure/setup-helm@v1
+        with:
+          version: '3.8.0'
+
+      - name: テスト用の依存関係のインストール
+        run: |
+          helm repo add elastic https://helm.elastic.co
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add fluent https://fluent.github.io/helm-charts
+          helm repo update
+
+      - name: 統合テストの実行
+        run: |
+          go test -v ./test/integration/... -tags=integration
+
+  e2e-test:
+    name: E2Eテスト
+    runs-on: ubuntu-latest
+    needs: integration-test
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: AWS認証情報の設定
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: kubectlのインストール
+        uses: azure/setup-kubectl@v1
+        with:
+          version: '1.24.0'
+
+      - name: テスト用EKSクラスタへの接続
+        run: |
+          aws eks update-kubeconfig --name microservices-test
+
+      - name: E2Eテストの実行
+        run: |
+          go test -v ./test/e2e/... -tags=e2e
+
+  test-report:
+    name: テストレポート生成
+    runs-on: ubuntu-latest
+    needs: [unit-test, integration-test, e2e-test]
+    if: always()
+    steps:
+      - name: テスト結果の集計
+        run: |
+          echo "テスト実行結果:"
+          echo "ユニットテスト: ${{ needs.unit-test.result }}"
+          echo "統合テスト: ${{ needs.integration-test.result }}"
+          echo "E2Eテスト: ${{ needs.e2e-test.result }}"
+
+      - name: Slack通知
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 

@@ -1,0 +1,77 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+      
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ./terraform
+      
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform/environments/dev
+      
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ./terraform/environments/dev
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  ansible-lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint-action@main
+        with:
+          targets: "ansible/"
+
+  kubernetes-validate:
+    name: Kubernetes Manifest Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v1
+      
+      - name: Validate Kubernetes manifests
+        run: |
+          for file in kubernetes/manifests/*.yaml; do
+            kubectl apply --dry-run=client -f "$file"
+          done
+
+  helm-lint:
+    name: Helm Chart Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.0
+      
+      - name: Run helm lint
+        run: |
+          for chart in kubernetes/helm/*/; do
+            helm lint "$chart"
+          done 

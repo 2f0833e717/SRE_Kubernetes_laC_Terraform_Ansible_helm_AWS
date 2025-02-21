@@ -1,0 +1,107 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: microservices-alerts
+  namespace: monitoring
+  labels:
+    app: prometheus
+    release: monitoring
+spec:
+  groups:
+    - name: node
+      rules:
+        - alert: HighCPUUsage
+          expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "高CPU使用率 ({{ $value }}%)"
+            description: "インスタンス {{ $labels.instance }} のCPU使用率が80%を超えています"
+
+        - alert: HighMemoryUsage
+          expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "高メモリ使用率 ({{ $value }}%)"
+            description: "インスタンス {{ $labels.instance }} のメモリ使用率が85%を超えています"
+
+        - alert: HighDiskUsage
+          expr: 100 - ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes) > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "高ディスク使用率 ({{ $value }}%)"
+            description: "インスタンス {{ $labels.instance }} のディスク使用率が85%を超えています"
+
+    - name: kubernetes
+      rules:
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 * 5 > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Podがクラッシュループしています"
+            description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} が頻繁に再起動しています"
+
+        - alert: PodNotReady
+          expr: sum by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Unknown"}) > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Podが準備できていません"
+            description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} が準備状態ではありません"
+
+        - alert: ContainerMemoryUsage
+          expr: sum(container_memory_usage_bytes) by (pod, namespace) / sum(container_spec_memory_limit_bytes) by (pod, namespace) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "コンテナのメモリ使用率が高い"
+            description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} のメモリ使用率が85%を超えています"
+
+    - name: application
+      rules:
+        - alert: HighErrorRate
+          expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service) * 100 > 5
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "高エラーレート"
+            description: "サービス {{ $labels.service }} のエラーレートが5%を超えています"
+
+        - alert: SlowResponseTime
+          expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)) > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "レスポンスタイムが遅い"
+            description: "サービス {{ $labels.service }} の95パーセンタイルレスポンスタイムが2秒を超えています"
+
+    - name: elasticsearch
+      rules:
+        - alert: ElasticsearchClusterHealth
+          expr: elasticsearch_cluster_health_status{color="red"} > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Elasticsearchクラスタの状態が異常です"
+            description: "Elasticsearchクラスタの状態が赤になっています"
+
+        - alert: ElasticsearchDiskSpace
+          expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes * 100 < 20
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Elasticsearchのディスク容量が不足しています"
+ 

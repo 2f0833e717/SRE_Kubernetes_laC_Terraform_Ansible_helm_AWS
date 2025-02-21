@@ -1,0 +1,105 @@
+---
+# SELinuxの設定
+- name: SELinuxの設定
+  selinux:
+    policy: targeted
+    state: enforcing
+
+# ファイアウォールの設定
+- name: 必要なファイアウォールサービスの有効化
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  with_items:
+    - ssh
+    - http
+    - https
+  notify: reload firewalld
+
+# SSHセキュリティ設定
+- name: SSHセキュリティ設定の適用
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+  notify: restart sshd
+
+# パスワードポリシーの設定
+- name: パスワードポリシーの設定
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  with_items:
+    - { key: 'minlen', value: '12' }
+    - { key: 'dcredit', value: '-1' }
+    - { key: 'ucredit', value: '-1' }
+    - { key: 'lcredit', value: '-1' }
+    - { key: 'ocredit', value: '-1' }
+
+# sudoersの設定
+- name: sudoersの設定
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/custom
+    owner: root
+    group: root
+    mode: '0440'
+    validate: 'visudo -cf %s'
+
+# 不要なサービスの無効化
+- name: 不要なサービスの無効化
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - rpcbind
+    - telnet
+    - xinetd
+  ignore_errors: yes
+
+# auditdの設定
+- name: auditdの設定
+  template:
+    src: audit.rules.j2
+    dest: /etc/audit/rules.d/audit.rules
+    owner: root
+    group: root
+    mode: '0600'
+  notify: restart auditd
+
+# fail2banの設定
+- name: fail2banのインストール
+  dnf:
+    name: fail2ban
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: fail2banの設定
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart fail2ban
+
+# rootkitスキャナーのインストール
+- name: rkhunterのインストール
+  dnf:
+    name: rkhunter
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: rkhunterの設定
+  template:
+    src: rkhunter.conf.j2
+    dest: /etc/rkhunter.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: update rkhunter database 

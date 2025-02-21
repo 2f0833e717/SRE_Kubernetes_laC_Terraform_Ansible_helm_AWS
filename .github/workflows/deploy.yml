@@ -1,0 +1,170 @@
+name: Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - 'kubernetes/**'
+      - 'ansible/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'デプロイ環境（dev/stg/prod）'
+        required: true
+        default: 'dev'
+
+env:
+  AWS_REGION: ap-northeast-1
+  TERRAFORM_VERSION: 1.0.0
+  KUBECTL_VERSION: 1.24.0
+  HELM_VERSION: 3.8.0
+
+jobs:
+  security-scan:
+    name: セキュリティスキャン
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: TFSecによるTerraformセキュリティスキャン
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: terraform
+
+      - name: Kubesecによるマニフェストスキャン
+        run: |
+          curl -L "https://github.com/controlplaneio/kubesec/releases/download/v2.11.2/kubesec_linux_amd64.tar.gz" | tar xz
+          sudo mv kubesec /usr/local/bin/
+          find kubernetes/manifests -type f -name "*.yaml" -exec kubesec scan {} \;
+
+      - name: Ansibleセキュリティスキャン
+        uses: ansible/ansible-lint-action@main
+        with:
+          targets: "ansible/"
+
+  terraform-apply:
+    name: Terraformデプロイ
+    needs: security-scan
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: AWS認証情報の設定
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraformのセットアップ
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform初期化
+        run: |
+          cd terraform/environments/${{ github.event.inputs.environment || 'dev' }}
+          terraform init
+
+      - name: Terraformプラン
+        run: |
+          cd terraform/environments/${{ github.event.inputs.environment || 'dev' }}
+          terraform plan -out=tfplan
+
+      - name: Terraform適用
+        run: |
+          cd terraform/environments/${{ github.event.inputs.environment || 'dev' }}
+          terraform apply -auto-approve tfplan
+
+  kubernetes-deploy:
+    name: Kubernetesデプロイ
+    needs: terraform-apply
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: AWS認証情報の設定
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: kubectlのインストール
+        uses: azure/setup-kubectl@v1
+        with:
+          version: ${{ env.KUBECTL_VERSION }}
+
+      - name: Helmのインストール
+        uses: azure/setup-helm@v1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: kubeconfig取得
+        run: |
+          aws eks update-kubeconfig --name microservices-${{ github.event.inputs.environment || 'dev' }} --region ${{ env.AWS_REGION }}
+
+      - name: 名前空間の作成
+        run: |
+          kubectl apply -f kubernetes/manifests/namespace.yaml
+
+      - name: Helmリポジトリの追加
+        run: |
+          helm repo add elastic https://helm.elastic.co
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add fluent https://fluent.github.io/helm-charts
+          helm repo update
+
+      - name: 監視スタックのデプロイ
+        run: |
+          helm upgrade --install monitoring kubernetes/helm/monitoring \
+            --namespace monitoring \
+            --create-namespace \
+            --values kubernetes/helm/monitoring/values.yaml
+
+      - name: ログ収集スタックのデプロイ
+        run: |
+          helm upgrade --install logging kubernetes/helm/logging \
+            --namespace logging \
+            --create-namespace \
+            --values kubernetes/helm/logging/values.yaml
+
+  ansible-configure:
+    name: Ansibleサーバー設定
+    needs: kubernetes-deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: AWS認証情報の設定
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Ansibleのインストール
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: インベントリの生成
+        run: |
+          aws ec2 describe-instances \
+            --filters "Name=tag:Environment,Values=${{ github.event.inputs.environment || 'dev' }}" \
+            --query 'Reservations[].Instances[].PrivateIpAddress' \
+            --output text > ansible/inventories/hosts
+
+      - name: Ansibleプレイブックの実行
+        run: |
+          cd ansible
+          ansible-playbook -i inventories/hosts playbooks/site.yml 

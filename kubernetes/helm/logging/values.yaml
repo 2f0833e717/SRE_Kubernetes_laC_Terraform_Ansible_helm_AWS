@@ -1,0 +1,129 @@
+# グローバル設定
+global:
+  environment: dev
+  domain: microservices.example.com
+
+elasticsearch:
+  enabled: true
+  replicas: 3
+  minimumMasterNodes: 2
+  
+  # リソース設定
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+  
+  # ストレージ設定
+  volumeClaimTemplate:
+    accessModes: ["ReadWriteOnce"]
+    resources:
+      requests:
+        storage: 100Gi
+  
+  # セキュリティ設定
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  
+  # JVMヒープサイズ
+  esJavaOpts: "-Xmx2g -Xms2g"
+
+kibana:
+  enabled: true
+  
+  # リソース設定
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+  
+  # セキュリティ設定
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  
+  # Elasticsearch接続設定
+  elasticsearchHosts: "http://elasticsearch-master:9200"
+  
+  # サービス設定
+  service:
+    type: ClusterIP
+    port: 5601
+  
+  # Ingress設定
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - host: kibana.microservices.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+
+fluent-bit:
+  enabled: true
+  
+  # 設定
+  config:
+    service: |
+      [SERVICE]
+          Flush         5
+          Daemon       Off
+          Log_Level    info
+          Parsers_File parsers.conf
+    
+    inputs: |
+      [INPUT]
+          Name             tail
+          Path             /var/log/containers/*.log
+          Parser           docker
+          Tag              kube.*
+          Refresh_Interval 5
+          Mem_Buf_Limit    5MB
+          Skip_Long_Lines  On
+    
+    filters: |
+      [FILTER]
+          Name                kubernetes
+          Match               kube.*
+          Kube_URL           https://kubernetes.default.svc:443
+          Kube_CA_File       /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          Kube_Token_File    /var/run/secrets/kubernetes.io/serviceaccount/token
+          Merge_Log          On
+          K8S-Logging.Parser On
+          K8S-Logging.Exclude On
+    
+    outputs: |
+      [OUTPUT]
+          Name            es
+          Match           *
+          Host            elasticsearch-master
+          Port            9200
+          Index           fluent-bit
+          Type            _doc
+          Generate_ID     On
+  
+  # リソース設定
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "200Mi"
+    limits:
+      cpu: "200m"
+      memory: "400Mi"
+  
+  # トレランス設定
+  tolerations:
+    - operator: Exists
+  
+  # セキュリティ設定
+  securityContext:
+    privileged: true 

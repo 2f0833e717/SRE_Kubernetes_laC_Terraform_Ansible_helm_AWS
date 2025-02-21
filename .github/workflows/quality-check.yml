@@ -1,0 +1,141 @@
+name: Quality Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  code-quality:
+    name: コード品質チェック
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: Go環境のセットアップ
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.19'
+
+      - name: golangci-lintのインストール
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.50.1
+
+      - name: Goコード解析
+        run: |
+          golangci-lint run ./... --timeout=5m
+
+      - name: gofmtによるコードスタイルチェック
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "以下のファイルはgofmtが必要です:"
+            gofmt -l .
+            exit 1
+          fi
+
+  terraform-quality:
+    name: Terraform品質チェック
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: Terraformのセットアップ
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      - name: Terraform Format
+        run: |
+          cd terraform
+          terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: |
+          cd terraform/environments/dev
+          terraform init -backend=false
+          terraform validate
+
+      - name: TFLint
+        uses: terraform-linters/setup-tflint@v2
+        with:
+          tflint_version: v0.44.1
+
+      - name: TFLintの実行
+        run: |
+          cd terraform
+          tflint --init
+          tflint --recursive
+
+  kubernetes-quality:
+    name: Kubernetes品質チェック
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: kubeval のインストール
+        run: |
+          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo cp kubeval /usr/local/bin
+
+      - name: Kubernetesマニフェストの検証
+        run: |
+          find kubernetes/manifests -type f -name "*.yaml" -exec kubeval --strict {} \;
+
+      - name: Helm Lintの実行
+        uses: azure/setup-helm@v1
+        with:
+          version: '3.8.0'
+
+      - name: Helmチャートの検証
+        run: |
+          cd kubernetes/helm
+          for chart in */; do
+            if [ -d "$chart" ]; then
+              helm lint "$chart"
+            fi
+          done
+
+  ansible-quality:
+    name: Ansible品質チェック
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: ansible-lintのセットアップ
+        run: |
+          pip install ansible-lint
+
+      - name: Ansible Lintの実行
+        run: |
+          cd ansible
+          ansible-lint playbooks/*.yml roles/*
+
+  quality-report:
+    name: 品質レポート生成
+    runs-on: ubuntu-latest
+    needs: [code-quality, terraform-quality, kubernetes-quality, ansible-quality]
+    if: always()
+    steps:
+      - name: 品質チェック結果の集計
+        run: |
+          echo "品質チェック結果:"
+          echo "コード品質: ${{ needs.code-quality.result }}"
+          echo "Terraform品質: ${{ needs.terraform-quality.result }}"
+          echo "Kubernetes品質: ${{ needs.kubernetes-quality.result }}"
+          echo "Ansible品質: ${{ needs.ansible-quality.result }}"
+
+      - name: Slack通知
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 

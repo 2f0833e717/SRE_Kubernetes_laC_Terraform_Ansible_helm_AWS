@@ -1,0 +1,29 @@
+---
+# ファイアウォールの再読み込み
+- name: reload firewalld
+  service:
+    name: firewalld
+    state: reloaded
+
+# SSHサービスの再起動
+- name: restart sshd
+  service:
+    name: sshd
+    state: restarted
+
+# auditdの再起動
+- name: restart auditd
+  service:
+    name: auditd
+    state: restarted
+
+# fail2banの再起動
+- name: restart fail2ban
+  service:
+    name: fail2ban
+    state: restarted
+
+# rkhunterデータベースの更新
+- name: update rkhunter database
+  command: rkhunter --propupd
+  changed_when: true 

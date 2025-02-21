@@ -1,0 +1,91 @@
+
+git status
+git restore .
+git clean -fd
+git status
+
+
+npm test
+http://localhost:52330/coverage/lcov-report/index.html
+
+npm run book
+
+# mdbookのインストール
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+rustc --version
+cargo --version
+cargo install mdbook
+mdbook --version
+mkdir docs
+cd docs
+mdbook init
+
+cd docs # mdbookの仕様上docsフォルダ内にmermaid.min.jsとmermaid-init.jsを作成する必要がある
+curl -o mermaid.min.js https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js
+cat > mermaid-init.js << EOF
+mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+    }
+});
+EOF
+
+cat > book.toml << EOF
+[book]
+title = ""
+authors = ["2f0833e717"]
+language = "ja"
+description = ""
+src = "."
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "YOUR_REPOSITORY_URL"
+edit-url-template = "YOUR_REPOSITORY_URL/edit/main/{path}"
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
+
+[build]
+build-dir = "./book"
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+EOF
+
+cd docs && mdbook build
+
+sudo apt-get update
+sudo apt-get install xdg-utils
+node -e \"const { platform } = require('os'); const { exec } = require('child_process'); const { existsSync } = require('fs'); const path = 'docs/book/index.html'; if (!existsSync(path)) { console.error('Error: ' + path + ' does not exist. Please run book:build first.'); process.exit(1); } const commands = { win32: 'start', darwin: 'open', linux: process.env.WSL_DISTRO_NAME ? 'wslview' : 'xdg-open' }; const cmd = commands[platform()] || 'xdg-open'; exec(cmd + ' ' + path, (error) => { if (error) { console.error('Error opening file:', error); process.exit(1); } });\""
+
+
+
+auto-composer.ps1 Powershell
+D:\Project\SubToolProject\auto-composer.ps1
+
+
+
+# lizard install command (powershell)
+python -m venv .venv
+.venv\Scripts\activate
+pip install lizard
+pip install jinja2
+deactivate
+
+# lizard command (powershell)
+New-Item -ItemType Directory -Force -Path .Lizard;
+lizard resources src > .Lizard/lizard.txt
+# lizard --csv resources src > .Lizard/lizard.csv
+"nloc,ccn,token_count,parameter_count,length,location,filepath,method_name,method_long_name,start_line,end_line" | Out-File -Encoding utf8 -FilePath .Lizard/lizard.csv;lizard --csv resources src | Out-File -Encoding utf8 -Append -FilePath .Lizard/lizard.csv
+lizard --xml resources src > .Lizard/lizard.xml
+lizard --html resources src > .Lizard/lizard.html
+
+# lizard oneline command (powershell)
+New-Item -ItemType Directory -Force -Path .Lizard;lizard resources src > .Lizard/lizard.txt;"nloc,ccn,token_count,parameter_count,length,location,filepath,method_name,method_long_name,start_line,end_line" | Out-File -Encoding utf8 -FilePath .Lizard/lizard.csv;lizard --csv resources src | Out-File -Encoding utf8 -Append -FilePath .Lizard/lizard.csv;lizard --xml resources src > .Lizard/lizard.xml;lizard --html resources src > .Lizard/lizard.html
+
+

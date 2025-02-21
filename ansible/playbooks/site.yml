@@ -1,0 +1,26 @@
+---
+# メインのプレイブック
+- name: "基本システム設定の適用"
+  hosts: all
+  become: true
+  roles:
+    - common
+    - security
+
+- name: "監視エージェントのセットアップ"
+  hosts: all
+  become: true
+  roles:
+    - monitoring_agent
+
+- name: "ログ収集エージェントのセットアップ"
+  hosts: all
+  become: true
+  roles:
+    - logging_agent
+
+- name: "アプリケーション依存関係のインストール"
+  hosts: app_servers
+  become: true
+  roles:
+    - app_dependencies 

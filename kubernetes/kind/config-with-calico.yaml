@@ -1,0 +1,35 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: sre-dev
+networking:
+  apiServerAddress: "127.0.0.1"
+  apiServerPort: 6443
+  podSubnet: "192.168.0.0/16"  # Calicoのデフォルトサブネット
+  disableDefaultCNI: true      # デフォルトのCNIを無効化
+  kubeProxyMode: "ipvs"        # パフォーマンス向上のためIPVSモードを使用
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 30000  # Prometheus
+    hostPort: 30000
+    protocol: TCP
+  - containerPort: 30001  # Grafana
+    hostPort: 30001
+    protocol: TCP
+  - containerPort: 30002  # Application
+    hostPort: 30002
+    protocol: TCP
+  - containerPort: 80     # Ingress HTTP
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443    # Ingress HTTPS
+    hostPort: 443
+    protocol: TCP
+- role: worker
+- role: worker 

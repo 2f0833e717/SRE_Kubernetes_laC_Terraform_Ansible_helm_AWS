@@ -1,0 +1,91 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 毎日午前0時に実行
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    name: セキュリティスキャン
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v2
+
+      - name: TFSecによるTerraformスキャン
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: terraform
+          format: sarif
+          output_file: tfsec.sarif
+
+      - name: TFSecの結果をアップロード
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: tfsec.sarif
+          category: tfsec
+
+      - name: Trivy設定
+        run: |
+          sudo apt-get install wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
+      - name: Trivyによるコンテナイメージスキャン
+        run: |
+          for file in kubernetes/manifests/*.yaml; do
+            images=$(grep 'image:' $file | awk '{print $2}')
+            for image in $images; do
+              trivy image --severity HIGH,CRITICAL $image
+            done
+          done
+
+      - name: Kubesecによるマニフェストスキャン
+        run: |
+          curl -L "https://github.com/controlplaneio/kubesec/releases/download/v2.11.2/kubesec_linux_amd64.tar.gz" | tar xz
+          sudo mv kubesec /usr/local/bin/
+          find kubernetes/manifests -type f -name "*.yaml" -exec kubesec scan {} \;
+
+      - name: GitGuardian秘密情報スキャン
+        uses: GitGuardian/ggshield-action@master
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+      - name: OWASP Dependency-Checkによる依存関係スキャン
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'microservices-platform'
+          path: '.'
+          format: 'HTML'
+          out: 'reports'
+
+      - name: スキャン結果のアップロード
+        uses: actions/upload-artifact@v2
+        with:
+          name: security-scan-results
+          path: reports/
+
+  vulnerability-notification:
+    name: 脆弱性通知
+    needs: security-scan
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Slack通知
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 

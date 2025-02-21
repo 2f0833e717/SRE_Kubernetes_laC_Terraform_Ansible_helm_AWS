@@ -1,0 +1,104 @@
+---
+# システムパッケージの更新
+- name: システムパッケージの更新
+  dnf:
+    name: "*"
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "RedHat"
+
+# 基本パッケージのインストール
+- name: 必要なパッケージのインストール
+  dnf:
+    name:
+      - vim
+      - curl
+      - wget
+      - git
+      - htop
+      - net-tools
+      - ntp
+      - chrony
+      - python3
+      - python3-pip
+    state: present
+  when: ansible_os_family == "RedHat"
+
+# タイムゾーンの設定
+- name: タイムゾーンの設定
+  timezone:
+    name: Asia/Tokyo
+
+# NTPサービスの設定と起動
+- name: Chronyサービスの設定
+  template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Chronyサービスの起動と有効化
+  service:
+    name: chronyd
+    state: started
+    enabled: yes
+
+# システムリミットの設定
+- name: システムリミットの設定
+  template:
+    src: limits.conf.j2
+    dest: /etc/security/limits.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+# sysctl設定
+- name: カーネルパラメータの設定
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  with_items:
+    - { key: 'net.ipv4.ip_forward', value: '1' }
+    - { key: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+    - { key: 'vm.max_map_count', value: '262144' }
+    - { key: 'fs.file-max', value: '65536' }
+
+# ログローテーションの設定
+- name: ログローテーション設定の追加
+  template:
+    src: logrotate.conf.j2
+    dest: /etc/logrotate.d/custom
+    owner: root
+    group: root
+    mode: '0644'
+
+# SSHの設定
+- name: SSHの設定
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+  notify: restart sshd
+
+# 監視エージェント用ディレクトリの作成
+- name: 監視エージェント用ディレクトリの作成
+  file:
+    path: /opt/monitoring
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+# ログ収集エージェント用ディレクトリの作成
+- name: ログ収集エージェント用ディレクトリの作成
+  file:
+    path: /opt/logging
+    state: directory
+    owner: root
+    group: root
+    mode: '0755' 
