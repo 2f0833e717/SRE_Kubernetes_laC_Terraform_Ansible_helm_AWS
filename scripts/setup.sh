@@ -11,8 +11,14 @@ check_docker_permissions() {
     if ! groups | grep -q docker; then
         echo "📝 Dockerグループに権限を追加しています..."
         echo ubuntu | sudo -S usermod -aG docker ubuntu
-        echo "✅ Dockerグループに追加しました。新しいシェルセッションを開始します..."
-        exec newgrp docker
+        echo "✅ Dockerグループに追加しました"
+        # 一時的なサブシェルでDockerグループを有効化
+        if ! sg docker -c "docker ps" > /dev/null 2>&1; then
+            echo "❌ Dockerグループの権限設定に失敗しました"
+            echo "スクリプトを再実行してください"
+            exit 1
+        fi
+        echo "✅ Dockerグループの権限が正しく設定されました"
     else
         echo "✅ Dockerの権限は正しく設定されています"
     fi
