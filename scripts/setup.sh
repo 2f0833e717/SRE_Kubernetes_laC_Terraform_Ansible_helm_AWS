@@ -5,6 +5,19 @@ set -e
 
 echo "🚀 SRE環境のセットアップを開始します..."
 
+# Dockerグループ権限のチェックと設定
+check_docker_permissions() {
+    echo "📝 Dockerの権限を確認しています..."
+    if ! groups | grep -q docker; then
+        echo "📝 Dockerグループに権限を追加しています..."
+        echo ubuntu | sudo -S usermod -aG docker ubuntu
+        echo "✅ Dockerグループに追加しました。新しいシェルセッションを開始します..."
+        exec newgrp docker
+    else
+        echo "✅ Dockerの権限は正しく設定されています"
+    fi
+}
+
 # 必要なツールのバージョンチェック
 check_tool_version() {
     local tool=$1
@@ -30,6 +43,9 @@ check_kind_cluster() {
     fi
     return 0
 }
+
+# メイン処理の開始
+check_docker_permissions
 
 # 必要なツールのバージョンチェック
 check_tool_version "docker" "20.10" "docker --version | cut -d' ' -f3 | tr -d ','"
