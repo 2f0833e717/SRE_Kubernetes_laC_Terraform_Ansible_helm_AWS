@@ -71,7 +71,7 @@ jobs:
           out: 'reports'
 
       - name: スキャン結果のアップロード
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: security-scan-results
           path: reports/
