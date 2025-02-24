@@ -103,7 +103,7 @@ jobs:
           version: ${{ env.KUBECTL_VERSION }}
 
       - name: Helmのインストール
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v4
         with:
           version: ${{ env.HELM_VERSION }}
 
