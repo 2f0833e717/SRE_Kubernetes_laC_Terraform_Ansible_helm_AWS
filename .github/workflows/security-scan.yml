@@ -25,7 +25,7 @@ jobs:
           output_file: tfsec.sarif
 
       - name: TFSecの結果をアップロード
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: tfsec.sarif
           category: tfsec
