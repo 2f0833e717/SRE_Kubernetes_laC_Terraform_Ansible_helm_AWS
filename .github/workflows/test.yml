@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go環境のセットアップ
         uses: actions/setup-go@v2
@@ -37,7 +37,7 @@ jobs:
     needs: unit-test
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: KindのセットアップKindのセットアップ
         uses: engineerd/setup-kind@v0.5.0
@@ -73,7 +73,7 @@ jobs:
     needs: integration-test
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: AWS認証情報の設定
         uses: aws-actions/configure-aws-credentials@v1
