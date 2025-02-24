@@ -52,7 +52,7 @@ jobs:
           kubectl get pods -A
 
       - name: Helmのセットアップ
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v4
         with:
           version: '3.8.0'
 
