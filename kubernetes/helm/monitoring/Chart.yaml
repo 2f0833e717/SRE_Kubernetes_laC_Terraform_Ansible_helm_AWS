@@ -17,6 +17,6 @@ dependencies:
     condition: grafana.enabled
   
   - name: alertmanager
-    version: "0.22.0"
+    version: "0.33.1"
     repository: "https://prometheus-community.github.io/helm-charts"
     condition: alertmanager.enabled 
