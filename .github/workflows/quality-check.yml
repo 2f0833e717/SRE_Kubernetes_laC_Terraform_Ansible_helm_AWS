@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go環境のセットアップ
         uses: actions/setup-go@v5
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Terraformのセットアップ
         uses: hashicorp/setup-terraform@v3
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: kubeval のインストール
         run: |
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: ansible-lintのセットアップ
         run: |
