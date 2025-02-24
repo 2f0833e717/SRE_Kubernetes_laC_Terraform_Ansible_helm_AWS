@@ -83,7 +83,7 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: kubectlのインストール
-        uses: azure/setup-kubectl@v1
+        uses: azure/setup-kubectl@v4
         with:
           version: '1.24.0'
 

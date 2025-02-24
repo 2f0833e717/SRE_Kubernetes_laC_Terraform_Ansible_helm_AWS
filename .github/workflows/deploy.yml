@@ -98,7 +98,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: kubectlのインストール
-        uses: azure/setup-kubectl@v1
+        uses: azure/setup-kubectl@v4
         with:
           version: ${{ env.KUBECTL_VERSION }}
 
