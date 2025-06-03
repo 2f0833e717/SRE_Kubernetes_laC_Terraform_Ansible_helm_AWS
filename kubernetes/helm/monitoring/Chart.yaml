@@ -7,7 +7,7 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: prometheus
-    version: "27.8.0"
+    version: "27.20.0"
     repository: "https://prometheus-community.github.io/helm-charts"
     condition: prometheus.enabled
   
