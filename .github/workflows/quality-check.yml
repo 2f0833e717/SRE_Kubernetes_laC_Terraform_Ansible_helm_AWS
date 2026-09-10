@@ -90,7 +90,7 @@ jobs:
       - name: Helm Lintの実行
         uses: azure/setup-helm@v4
         with:
-          version: '3.8.0'
+          version: '3.22.0'
 
       - name: Helmチャートの検証
         run: |
